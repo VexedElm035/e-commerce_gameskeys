@@ -3,11 +3,17 @@ import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
 
+import { useToastStore } from '@/stores/toast';
+import { useImage } from '@/composables/useImage';
+
 const route = useRoute();
+const toast = useToastStore();
+const { resolve, getPlaceholder } = useImage();
 const searchQuery = ref(route.query.q || '');
 const gameKeys = ref([]);
 const filteredKeys = ref([]);
 const isLoading = ref(true);
+const showMobileFilters = ref(false);
 const filters = ref({
   platforms: [],
   regions: [],
@@ -21,13 +27,17 @@ const filters = ref({
 const fetchGameKeys = async () => {
   try {
     isLoading.value = true;
-    const response = await axios.get('/gamekeys');
-    gameKeys.value = response.data.filter(key => key.state === 'disponible');
+    // Use server-side filtering for state
+    const response = await axios.get('/gamekeys', {
+      params: { state: 'disponible' }
+    });
+    gameKeys.value = response.data;
     console.log('Game keys fetched:', gameKeys.value);
     extractUniqueFilters();
     applyFilters();
   } catch (error) {
     console.error('Error fetching game keys:', error);
+    toast.trigger('Error al cargar el catálogo de juegos.', 'error');
   } finally {
     isLoading.value = false;
   }
@@ -107,6 +117,10 @@ const resetFilters = () => {
   applyFilters();
 };
 
+const toggleMobileFilters = () => {
+  showMobileFilters.value = !showMobileFilters.value;
+};
+
 onMounted(() => {
   fetchGameKeys();
 });
@@ -158,10 +172,19 @@ watch(
           </svg>
         </div>
       </div>
+      
+      <!-- Mobile Filter Toggle -->
+      <div class="md:hidden mt-4">
+        <button @click="toggleMobileFilters" 
+          class="w-full bg-gray-800 p-2 rounded text-center font-bold text-yellow-500 border border-gray-700">
+          {{ showMobileFilters ? 'Ocultar Filtros' : 'Mostrar Filtros' }}
+        </button>
+      </div>
     </section>
 
     <section class="container mx-auto p-6 flex-grow flex flex-col md:flex-row">
-      <aside class="w-full md:w-64 bg-gray-800 p-4 rounded-lg md:mr-6 mb-6 md:mb-0">
+      <!-- Sidebar / Filters -->
+      <aside :class="`${showMobileFilters ? 'block' : 'hidden'} md:block w-full md:w-64 bg-gray-800 p-4 rounded-lg md:mr-6 mb-6 md:mb-0 transform transition-all`">
         <h2 class="text-xl font-bold mb-4">Filtros</h2>
 
         <div class="mb-6">
@@ -247,8 +270,8 @@ watch(
         <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div v-for="key in filteredKeys" :key="key.id"
             class="bg-gray-800 p-4 rounded-lg hover:shadow-lg transition-all border border-gray-700 hover:border-yellow-500/30">
-            <img :src="key.game.img" :alt="key.game.name" class="w-full h-40 object-cover rounded-lg mb-3"
-              @error="(e) => e.target.src = 'https://via.placeholder.com/300x150?text=Imagen+no+disponible'">
+            <img :src="resolve(key.game.img, 'game')" :alt="key.game.name" class="w-full h-40 object-cover rounded-lg mb-3"
+              @error="(e) => e.target.src = getPlaceholder('game')">
             <div class="flex justify-between items-start mb-2">
               <h3 class="text-lg font-bold">{{ key.game.name }}</h3>
               <span class="px-2 py-1 bg-gray-700 rounded text-xs">{{ key.platform }}</span>

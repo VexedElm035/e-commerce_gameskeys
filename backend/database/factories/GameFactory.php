@@ -22,7 +22,7 @@ class GameFactory extends Factory
             'launch_date' => $this->faker->date(),
             'publisher' => $this->faker->company,
             'available_platforms' => $this->faker->randomElement(['Steam', 'EpicGames', 'PS4', 'PS5', 'XboxOne', 'XboxSeries', 'Switch']),
-            'genre_id' => Genre::inRandomOrder()->first()->id,
+            'genre_id' => Genre::inRandomOrder()->first()?->id ?? Genre::factory(),
         ];
     }
 }

@@ -23,6 +23,9 @@ const props = defineProps({
     deliverytime: String
 });
 
+import { useImage } from '@/composables/useImage';
+const { resolve, getPlaceholder } = useImage();
+
 const isHovered = ref(false);
 const isAdding = ref(false);
 const addError = ref(null);
@@ -63,8 +66,9 @@ const handleAddToCart = async () => {
         @mouseenter="isHovered = true" @mouseleave="isHovered = false">
         <div class="flex flex-col h-full relative">
             <div class='relative overflow-hidden flex-shrink-0 h-[350px]'>
-                <img :src="img" alt="img" class="w-full h-full object-cover rounded-lg transition-all duration-300 mt-4"
-                    :class="{ 'scale-105': isHovered, 'brightness-75': isHovered }">
+                <img :src="resolve(img, 'game')" alt="img" class="w-full h-full object-cover rounded-lg transition-all duration-300 mt-4"
+                    :class="{ 'scale-105': isHovered, 'brightness-75': isHovered }"
+                    @error="(e) => e.target.src = getPlaceholder('game')">
 
                 <div v-if="platformImages[platform]" class="absolute top-0 w-fit h-fit">
                     <img :src="platformImages[platform]" :alt="platform" class="w-100 h-full object-contain">

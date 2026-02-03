@@ -10,10 +10,18 @@ class PurchaseController extends Controller
 {
     public function index()
     {
-        // Quitamos el filtro por usuario (¡Ahora muestra TODAS las compras!)
-        $purchases = Purchase::with(['user', 'gameKey.game'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $user = auth()->user();
+
+        if ($user->role === 'admin') {
+             $purchases = Purchase::with(['user', 'gameKey.game'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } else {
+            $purchases = Purchase::with(['user', 'gameKey.game'])
+                ->where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
 
         return response()->json($purchases);
     }
@@ -21,7 +29,6 @@ class PurchaseController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
             'key_id' => 'required|exists:game_keys,id',
             'pay_method' => 'required|string',
             'total' => 'required|numeric',
@@ -29,10 +36,11 @@ class PurchaseController extends Controller
             'state' => 'required|string',
         ]);
 
-        // Quitamos la verificación de autorización
+        $validated['user_id'] = auth()->id();
+
         $purchase = Purchase::create($validated);
 
-        // Mensajes de compra/venta (sin cambios, pero cuidado con la exposición de datos)
+        // Mensajes de compra/venta
         Message::create([
             'sender_id' => 1,
             'receiver_id' => $purchase->user_id,
@@ -56,9 +64,12 @@ class PurchaseController extends Controller
 
     public function show($id)
     {
-        // Quitamos la verificación de autorización
-        $purchase = Purchase::with(['gameKey.game', 'user'])
-            ->findOrFail($id);
+        $purchase = Purchase::with(['gameKey.game', 'user'])->findOrFail($id);
+        $user = auth()->user();
+
+        if ((int)$user->id !== (int)$purchase->user_id && $user->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
 
         return response()->json($purchase);
     }

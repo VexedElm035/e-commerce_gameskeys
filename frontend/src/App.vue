@@ -1,9 +1,17 @@
 <script setup>
 import { RouterView } from 'vue-router'
+import Toast from '@/components/Toast.vue'
+import { useToastStore } from '@/stores/toast'
+
+const toastStore = useToastStore()
 </script>
 
 <template>
   <RouterView />
+  <Toast :show="toastStore.show" 
+         :message="toastStore.message" 
+         :type="toastStore.type" 
+         @close="toastStore.close()" />
 </template>
 
 <style scoped>

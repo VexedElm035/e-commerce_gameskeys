@@ -3,9 +3,11 @@ import { RouterLink } from 'vue-router';
 import { ref } from 'vue';
 import { useCartStore } from '@/stores/cart';
 import { useAuthStore } from '@/stores/auth';
+import { useImage } from '@/composables/useImage';
 
 const auth = useAuthStore();
 const cart = useCartStore();
+const { resolve, getPlaceholder } = useImage();
 const isAdding = ref(false);
 const addError = ref(null);
 
@@ -38,8 +40,9 @@ const handleAddToCart = async () => {
 
             <div class="bg-gray-800 p-4 rounded-lg flex flex-row flex-wrap justify-between">
                 <div>
-                    <img :src="seller_img ? `${seller_img}` : '../img/def.jpg'" alt="Foto de perfil"
-                        class="w-12 h-12 rounded-full object-cover">
+                    <img :src="resolve(seller_img, 'user')" alt="Foto de perfil"
+                        class="w-12 h-12 rounded-full object-cover"
+                        @error="(e) => e.target.src = getPlaceholder('user')">
                     {{ seller }}
                 </div>
                 <div class="flex items-center gap-2">

@@ -2,24 +2,21 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios'
 
-const soldKeys = ref([]);
+const purchases = ref([]);
+const error = ref(null);
 
-const fetchSellerData = async () => {
+const fetchPurchases = async () => {
   try {
-    const soldResponse = await axios.get('/gamekeys', {
-      params: {
-        state: 'vendida'
-      }
-    });
-    soldKeys.value = soldResponse.data;
-
+    const response = await axios.get('/purchases');
+    purchases.value = response.data;
   } catch (err) {
-    console.error('Error fetching seller data:', err);
+    console.error('Error fetching purchases:', err);
     error.value = err.response?.data?.message || 'Error al cargar los datos';
   }
 };
+
 onMounted(() => {
-  fetchSellerData();
+  fetchPurchases();
 });
 
 </script>
@@ -38,20 +35,32 @@ onMounted(() => {
               <table class="min-w-full bg-gray-800 rounded-lg overflow-hidden">
                 <thead class="bg-gray-700">
                   <tr>
+                    <th class="px-4 py-3 text-left">ID</th>
+                    <th class="px-4 py-3 text-left">Comprador</th>
                     <th class="px-4 py-3 text-left">Juego</th>
-                    <th class="px-4 py-3 text-left">Plataforma</th>
-                    <th class="px-4 py-3 text-left">Precio</th>
-                    <th class="px-4 py-3 text-left">Fecha Venta</th>
-                    <th class="px-4 py-3 text-left">Ganancia</th>
+                    <th class="px-4 py-3 text-left">Método</th>
+                    <th class="px-4 py-3 text-left">Total</th>
+                    <th class="px-4 py-3 text-left">Fecha</th>
+                    <th class="px-4 py-3 text-left">Estado</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-700">
-                  <tr v-for="key in soldKeys" :key="key.id" class="hover:bg-gray-700/50">
-                    <td class="px-4 py-3">{{ key.game?.name }}</td>
-                    <td class="px-4 py-3">{{ key.platform }}</td>
-                    <td class="px-4 py-3">${{ key.price }}</td>
-                    <td class="px-4 py-3">{{ new Date(key.updated_at).toLocaleDateString() }}</td>
-                    <td class="px-4 py-3 text-green-400">${{ (key.tax) }}</td>
+                  <tr v-for="purchase in purchases" :key="purchase.id" class="hover:bg-gray-700/50">
+                    <td class="px-4 py-3 text-gray-400">#{{ purchase.id }}</td>
+                    <td class="px-4 py-3 font-semibold">{{ purchase.user?.username || 'Usuario eliminado' }}</td>
+                    <td class="px-4 py-3">{{ purchase.game_key?.game?.name || 'Juego desconocido' }}</td>
+                    <td class="px-4 py-3">{{ purchase.pay_method }}</td>
+                    <td class="px-4 py-3 text-yellow-400">${{ purchase.total }}</td>
+                    <td class="px-4 py-3">{{ new Date(purchase.created_at).toLocaleDateString() }}</td>
+                    <td class="px-4 py-3">
+                      <span class="px-2 py-1 rounded text-xs" :class="{
+                        'bg-green-500/20 text-green-400': purchase.state === 'completado',
+                        'bg-yellow-500/20 text-yellow-400': purchase.state === 'pendiente',
+                        'bg-red-500/20 text-red-400': purchase.state === 'cancelado'
+                      }">
+                        {{ purchase.state }}
+                      </span>
+                    </td>
                   </tr>
                 </tbody>
               </table>

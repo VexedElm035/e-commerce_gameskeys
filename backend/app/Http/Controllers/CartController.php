@@ -68,13 +68,7 @@ class CartController extends Controller
                 return response()->json(['message' => 'Usuario no autenticado'], 401);
             }
 
-            $cartItems = $user->cartItems()->get();
-            $deletedCount = 0;
-
-            foreach ($cartItems as $item) {
-                $this->destroy($item->id);
-                $deletedCount++;
-            }
+            $deletedCount = $user->cartItems()->delete();
 
             return response()->json([
                 'message' => 'Carrito vaciado correctamente',

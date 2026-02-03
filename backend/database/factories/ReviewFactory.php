@@ -19,9 +19,9 @@ class ReviewFactory extends Factory
     public function definition()
     {
         return [
-            'user_id' => User::inRandomOrder()->first()->id,
-            'seller_id' => User::inRandomOrder()->first()->id,
-            'game_id' => Game::inRandomOrder()->first()->id,
+            'user_id' => User::inRandomOrder()->first()?->id ?? User::factory(),
+            'seller_id' => User::inRandomOrder()->first()?->id ?? User::factory(),
+            'game_id' => Game::inRandomOrder()->first()?->id ?? Game::factory(),
             'rate' => $this->faker->numberBetween(1, 5),
             'rate_ux' => $this->faker->numberBetween(1, 5),
             'rate_time' => $this->faker->numberBetween(1, 5),

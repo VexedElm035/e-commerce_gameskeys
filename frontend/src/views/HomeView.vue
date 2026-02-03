@@ -5,9 +5,12 @@ import FeaturedCarrousel from '../components/FeaturedCarrousel.vue';
 import HorizontalCarousel from '@/components/Carrousel.vue';
 import axios from 'axios';
 import { ref, onMounted, computed } from 'vue';
+
 import { useRouter } from 'vue-router';
+import { useImage } from '@/composables/useImage';
 
 const router = useRouter();
+const { resolve } = useImage();
 const searchQuery = ref('');
 const handleSearch = () => {
     if (searchQuery.value.trim()) {
@@ -147,7 +150,7 @@ onMounted(() => {
             <section v-if="section.keys.length >= 0" class="container mx-auto p-2 mt-10" :id="section.title" >
                 <h2 class="text-2xl font-bold text-center mb-6 flex items-center justify-center gap-2">
                    
-                    <img :src='`${section.icon}`' alt="icon" class="w-6 h-6">
+                    <img :src="resolve(section.icon, 'icon')" alt="icon" class="w-6 h-6">
                     {{ section.title }}
                 </h2>
                 

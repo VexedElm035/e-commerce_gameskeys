@@ -1,5 +1,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+import { useImage } from '@/composables/useImage';
+const { resolve, getPlaceholder } = useImage();
 import axios from 'axios';
 
 const banners = ref([]);
@@ -98,8 +100,8 @@ onUnmounted(() => {
         <div v-for="(banner, index) in banners" :key="banner.id"
           class="absolute w-[600px] h-[300px] bg-gray-800 p-1 rounded-lg text-center shadow-lg"
           :style="getCardStyle(index)">
-          <img :src="banner.img" :alt="banner.title" class="w-full h-full object-cover rounded-lg"
-            @error="banner.img = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 800 400\'%3E%3Crect width=\'800\' height=\'400\' fill=\'%232d3748\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'Arial\' font-size=\'24\' fill=\'%23fff\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3EBanner no disponible%3C/text%3E%3C/svg%3E'">
+          <img :src="resolve(banner.img)" :alt="banner.title" class="w-full h-full object-cover rounded-lg"
+            @error="(e) => e.target.src = getPlaceholder('game')">
           <h3 class="text-lg font-bold text-white mt-2">{{ banner.title }}</h3>
         </div>
       </div>

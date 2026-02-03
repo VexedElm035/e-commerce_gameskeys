@@ -1,6 +1,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { useImage } from '@/composables/useImage';
+
+const { resolve, getPlaceholder } = useImage();
 
 const purchases = ref([]);
 const isLoading = ref(true);
@@ -70,8 +73,9 @@ onMounted(() => {
         <!-- Encabezado de la compra -->
         <div class="p-4 flex flex-col md:flex-row gap-4">
           <!-- Imagen del juego -->
-          <img :src="purchase.game_key?.game?.img || 'https://via.placeholder.com/150'"
-            :alt="purchase.game_key?.game?.name" class="w-full md:w-32 h-32 object-cover rounded-lg">
+          <img :src="resolve(purchase.game_key?.game?.img, 'game')"
+            :alt="purchase.game_key?.game?.name" class="w-full md:w-32 h-32 object-cover rounded-lg"
+            @error="(e) => e.target.src = getPlaceholder('game')">
 
           <!-- Información principal -->
           <div class="flex-1">

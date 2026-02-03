@@ -4,8 +4,10 @@ import { RouterLink, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useCartStore } from '@/stores/cart';
 import axios from 'axios'
+import { useImage } from '@/composables/useImage';
 
 const cart = useCartStore();
+const { resolve, getPlaceholder } = useImage();
 
 const props = defineProps({
   hasSidebar: {
@@ -132,7 +134,8 @@ function logout() {
           <li class="relative">
             <button @click="toggleMenu"
               class="text-gray-300 hover:text-yellow-400 focus:outline-none cursor-pointer w-6 h-6">
-              <img :src="`${avatar}`" alt="avatar" class="w-full h-full rounded-full object-cover">
+              <img :src="resolve(avatar, 'user')" alt="avatar" class="w-full h-full rounded-full object-cover"
+                   @error="(e) => e.target.src = getPlaceholder('user')">
             </button>
 
             <ul v-if="showMenu" class="absolute right-0 mt-2 w-48 bg-gray-700 text-white rounded-lg shadow-lg z-50">

@@ -9,6 +9,10 @@ class AdminController extends Controller
 {
     public function getEarnings()
     {
+        if (auth()->user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $totalEarnings = Purchase::sum('tax');
 
         $totalPurchases = Purchase::count();

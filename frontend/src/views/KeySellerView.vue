@@ -4,8 +4,10 @@ import axios from 'axios';
 import getUnicodeFlagIcon from 'country-flag-icons/unicode';
 import { useAuthStore } from '@/stores/auth';
 import { debounce } from 'lodash-es';
+import { useImage } from '@/composables/useImage';
 
 const authStore = useAuthStore();
+const { resolve, getPlaceholder } = useImage();
 const sellerId = computed(() => authStore.userId);
 
 let games = ref([]);
@@ -220,7 +222,8 @@ async function addKey() {
               class="absolute z-10 bg-gray-700 w-full rounded max-h-64 overflow-auto shadow-lg">
               <li v-for="game in filteredGames" :key="game.id" @click="chooseGame(game)"
                 class="flex items-center gap-2 px-2 py-1 hover:bg-gray-600 cursor-pointer">
-                <img :src="`${game.img}`" alt="game" class="w-8 h-8 rounded object-cover" loading="lazy" />
+                <img :src="resolve(game.img, 'game')" alt="game" class="w-8 h-8 rounded object-cover"
+                  loading="lazy" @error="(e) => e.target.src = getPlaceholder('game')" />
                 <span>{{ game.name }}</span>
               </li>
             </ul>
@@ -234,7 +237,8 @@ async function addKey() {
         <div v-if="selectedGame" class="bg-gray-800 p-6 rounded-lg mt-6 w-full max-w-2xl mx-auto">
           <button @click="selectedGame = null" class=''>Seleccionar otro juego</button>
           <div class="flex items-center gap-2 my-2">
-            <img :src="`${selectedGame.img}`" alt="selected" class="w-10 h-10 object-cover rounded" loading="lazy" />
+            <img :src="resolve(selectedGame.img, 'game')" alt="selected" class="w-10 h-10 object-cover rounded"
+              loading="lazy" @error="(e) => e.target.src = getPlaceholder('game')" />
             <span>{{ selectedGame.name }}</span>
           </div>
         </div>

@@ -4,7 +4,10 @@ import axios from 'axios';
 import { useRouter } from 'vue-router'
 
 import { useAuthStore } from '@/stores/auth'
+import { useImage } from '@/composables/useImage';
+
 const auth = useAuthStore()
+const { resolve } = useImage();
 const apiUrl = import.meta.env.VITE_API_URL;
 const stats = ref({
   totalEarnings: 0,
@@ -211,7 +214,7 @@ function logout() {
 
             <div v-if="previewUrl" class="mb-3">
               <p class="text-sm mb-1">Vista previa:</p>
-              <img :src="previewUrl" class="max-h-32 rounded">
+              <img :src="resolve(previewUrl)" class="max-h-32 rounded">
             </div>
 
             <button @click="uploadBanner" :disabled="!fileInput?.files?.length"
@@ -235,7 +238,7 @@ function logout() {
                 </svg>
               </button>
             </div>
-            <img :src="currentPreview" class="max-w-full max-h-[80vh] mx-auto">
+            <img :src="resolve(currentPreview)" class="max-w-full max-h-[80vh] mx-auto">
           </div>
         </div>
 

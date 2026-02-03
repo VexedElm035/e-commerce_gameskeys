@@ -3,11 +3,13 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
+import { useToastStore } from '@/stores/toast';
+
 const router = useRouter();
+const toast = useToastStore();
 const messages = ref([]);
 const unreadCount = ref(0);
 const loading = ref(true);
-const error = ref(null);
 const activeFilter = ref('all');
 const currentPage = ref(1);
 const expandedMessageId = ref(null);
@@ -28,8 +30,8 @@ const fetchMessages = async () => {
     messages.value = response.data.messages.data;
     unreadCount.value = response.data.unread_count;
   } catch (err) {
-    error.value = 'Error al cargar los mensajes';
     console.error(err);
+    toast.trigger('Error al cargar los mensajes', 'error');
   } finally {
     loading.value = false;
   }
@@ -46,6 +48,7 @@ const markAsRead = async (messageId) => {
     }
   } catch (err) {
     console.error('Error al marcar como leído:', err);
+    toast.trigger('Error al actualizar estado del mensaje', 'error');
   }
 };
 
@@ -186,14 +189,14 @@ onMounted(fetchMessages);
               </div>
 
               <div v-if="expandedMessageId === message.id" class="mt-4 bg-gray-700/50 p-4 rounded-lg">
-                <div v-if="message.purchase?.game_key" class="space-y-3">
+                <div v-if="message.purchase?.gameKey" class="space-y-3">
                   <div>
                     <h4 class="font-medium text-yellow-400 mb-1">Tu clave de juego:</h4>
                     <div class="bg-gray-800 p-3 rounded-lg font-mono text-lg tracking-wider select-all">
-                      {{ message.purchase.game_key.key || 'Clave no disponible' }}
+                      {{ message.purchase.gameKey.key || 'Clave no disponible' }}
                     </div>
                     <p class="text-xs text-gray-400 mt-1">
-                      Plataforma: {{ message.purchase.game_key.platform }}
+                      Plataforma: {{ message.purchase.gameKey.platform }}
                     </p>
                   </div>
 

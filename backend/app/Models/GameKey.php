@@ -6,11 +6,25 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 class GameKey extends Model
 {
+    use HasFactory;
+    
     protected $fillable = [
         'game_id', 'state', 'region', 'price', 'tax',
         'delivery_time', 'seller_id', 'platform', 'sale_id', 'key'
+    ];
+
+    protected $hidden = [
+        'key',
+        'created_at',
+        'updated_at',
+        'sale_id',
+        'created_at',
+        'updated_at',
+        'tax'
     ];
 
     public function game(): BelongsTo

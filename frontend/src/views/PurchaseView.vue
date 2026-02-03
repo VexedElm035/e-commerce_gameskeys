@@ -4,9 +4,11 @@ import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import { useAuthStore } from '@/stores/auth';
 import { useCartStore } from '@/stores/cart';
+import { useImage } from '@/composables/useImage';
 
 const authStore = useAuthStore();
 const cartStore = useCartStore();
+const { resolve, getPlaceholder } = useImage();
 const route = useRoute();
 const router = useRouter();
 
@@ -173,8 +175,9 @@ onMounted(() => {
             <div v-for="key in keys" :key="key.id" class="p-6 border-b border-gray-700 last:border-b-0">
               <div class="flex flex-col sm:flex-row gap-6">
                 <div class="flex-shrink-0">
-                  <img :src="key.game?.img || '/placeholder-game.jpg'" :alt="key.game?.name"
-                    class="w-32 h-32 object-cover rounded-lg">
+                  <img :src="resolve(key.game?.img, 'game')" :alt="key.game?.name"
+                    class="w-32 h-32 object-cover rounded-lg"
+                    @error="(e) => e.target.src = getPlaceholder('game')">
                 </div>
                 <div class="flex-grow">
                   <h3 class="text-lg font-semibold mb-2">{{ key.game?.name || 'Nombre no disponible' }}</h3>

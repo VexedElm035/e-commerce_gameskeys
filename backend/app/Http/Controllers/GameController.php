@@ -20,19 +20,31 @@ class GameController extends Controller
         return response()->json(['message' => 'Juego creado exitosamente', 'data' => $game], 200);
     }
 
-    public function show(Game $game)
+    public function show($id)
     {
+        $game = Game::find($id);
+        if (!$game) {
+            return response()->json(['message' => 'Game not found'], 404);
+        }
         return response()->json($game, 200);
     }
 
     public function update(GameRequest $request, Game $game)
     {
+        if (auth()->user()->role !== 'admin') {
+             return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $game->update($request->validated());
         return response()->json(['message' => 'Juego actualizado correctamente', 'data' => $game], 200);
     }
 
     public function destroy(Game $game)
     {
+        if (auth()->user()->role !== 'admin') {
+             return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $game->delete();
         return response()->json(['message' => 'Juego eliminado correctamente'], 200);
     }

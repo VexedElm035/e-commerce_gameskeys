@@ -27,7 +27,7 @@ class GameKeyFactory extends Factory
             'delivery_time' => $this->faker->randomElement(['instant', '24 hours']),
             'seller_id' => User::inRandomOrder()->first()->id,
             'platform' => $this->faker->randomElement(['PC', 'Xbox', 'PlayStation']),
-            'sale_id' => Sale::inRandomOrder()->first()->id,
+            'sale_id' => Sale::inRandomOrder()->first()?->id ?? Sale::factory(),
         ];
     }
 }

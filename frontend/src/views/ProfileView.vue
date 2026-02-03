@@ -4,8 +4,10 @@ import axios from 'axios';
 import { ref, onMounted, computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useRoute } from 'vue-router';
+import { useImage } from '@/composables/useImage';
 
 const authStore = useAuthStore();
+const { resolve, getPlaceholder } = useImage();
 const token = computed(() => authStore.token);
 const route = useRoute();
 const userId = route.params.id;
@@ -57,8 +59,9 @@ async function becomeSeller() {
         <!-- Avatar y datos básicos -->
         <div class="bg-gray-800 p-6 rounded-lg w-full md:w-1/3">
           <div class="flex flex-col items-center">
-            <img :src="user.avatar ? `${user.avatar}` : '../img/def.jpg'"
-              class="w-32 h-32 rounded-full object-cover mb-4 border-2 border-yellow-500" />
+            <img :src="resolve(user.avatar, 'user')"
+              class="w-32 h-32 rounded-full object-cover mb-4 border-2 border-yellow-500"
+              @error="(e) => e.target.src = getPlaceholder('user')" />
             <h2 class="text-2xl font-bold">{{ user.username }}</h2>
             <p class="text-gray-400">{{ user.email }}</p>
 

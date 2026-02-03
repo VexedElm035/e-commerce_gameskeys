@@ -16,6 +16,7 @@ import SalesView from '../views/SalesView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import CatalogView from '../views/CatalogView.vue'
 import PurchaseView from '@/views/PurchaseView.vue'
+import SupportView from '@/views/SupportView.vue'
 
 import SellerView from '../views/SellerView.vue'
 import KeySellerView from '../views/KeySellerView.vue'
@@ -34,24 +35,24 @@ import PurchasesView from '@/views/admin/PurchasesView.vue'
 const routes = [
   {
     path: '/',
-    component: Layout, 
+    component: Layout,
     children: [
       { path: '', name: 'home', component: HomeView },
       { path: 'game/:id', name: 'gameDetails', component: GameDetailsView },
       { path: 'key/:id', name: 'keyDetails', component: KeyDetailsView },
       { path: 'cart', name: 'cart', component: CartView },
-      { path: 'sales', name: 'sales', component: SalesView},
-      { path: 'catalog', name: 'catalog', component: CatalogView, props: (route) => ({ query: route.query.q })}, //aqui iria la ruta con el query
+      { path: 'sales', name: 'sales', component: SalesView },
+      { path: 'catalog', name: 'catalog', component: CatalogView, props: (route) => ({ query: route.query.q }) }, //aqui iria la ruta con el query
       { path: 'purchase', name: 'purchaseCart', component: PurchaseView },
       { path: 'purchase/:id', name: 'purchaseSingle', component: PurchaseView },
       { path: 'orders', name: 'orders', component: OrderView },
       { path: 'inbox', name: 'inbox', component: InboxView },
-
+      { path: 'support', name: 'support', component: SupportView, meta: { requiresAuth: true } }, // Added support route
     ],
   },
   {
     path: '/',
-    component: UserLayout, 
+    component: UserLayout,
     children: [
       { path: 'login', name: 'login', component: LoginView },
       { path: 'signup', name: 'signup', component: SignUpView },
@@ -62,10 +63,10 @@ const routes = [
   },
   {
     path: '/admin/',
-    component: AdminLayout, 
+    component: AdminLayout,
     children: [
       { path: '', name: 'admin', component: AdminView },
-      
+
       { path: 'games', name: 'admingames', component: AdminGamesView },
       { path: 'genres', name: 'admingenres', component: AdminGenresView },
       { path: 'purchases', name: 'adminpurchases', component: PurchasesView },
@@ -73,7 +74,7 @@ const routes = [
       { path: 'keys', name: 'adminkeys', component: AdminKeysView },
     ],
   },
-  { path: '/:pathMatch(.*)*', name: 'notfound', component: NotFoundView }, 
+  { path: '/:pathMatch(.*)*', name: 'notfound', component: NotFoundView },
 ]
 
 const router = createRouter({
@@ -101,7 +102,7 @@ router.beforeEach((to, from, next) => {
   }
 
   if (auth.isLoggedIn) {
-    
+
     if (auth.userRole === 'admin' && !to.path.startsWith('/admin')) {
       next({ name: 'admin' })
       return
@@ -112,8 +113,8 @@ router.beforeEach((to, from, next) => {
       return
     }
 
-    if (auth.userRole === 'user' && 
-        (roleRoutes.admin.includes(to.name) || roleRoutes.seller.includes(to.name))) {
+    if (auth.userRole === 'user' &&
+      (roleRoutes.admin.includes(to.name) || roleRoutes.seller.includes(to.name))) {
       next({ name: 'home' })
       return
     }

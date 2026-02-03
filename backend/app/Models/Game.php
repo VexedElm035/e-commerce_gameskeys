@@ -6,8 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 class Game extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'igdb_id', 'name', 'img', 'description', 'launch_date', 'publisher',
         'available_platforms', 'genre_id'

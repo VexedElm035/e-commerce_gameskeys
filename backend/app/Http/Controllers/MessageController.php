@@ -10,24 +10,38 @@ class MessageController extends Controller
 {
     public function index()
     {
-        // Sin autenticación: ahora obtiene todos los mensajes (¡Cuidado con la privacidad!)
-        $messages = Message::with(['sender', 'purchase.gameKey.game'])
+        $userId = auth()->id();
+
+        $messages = Message::with(['sender:id,username,avatar,role,created_at', 'purchase.gameKey.game'])
+            ->where(function ($query) use ($userId) {
+                $query->where('sender_id', $userId)
+                      ->orWhere('receiver_id', $userId);
+            })
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
+        $unreadCount = Message::where('receiver_id', $userId)
+            ->where('is_read', false)
+            ->count();
+
         return response()->json([
             'messages' => $messages,
-            'unread_count' => 0 // Ya no hay un usuario autenticado para contar mensajes no leídos
+            'unread_count' => $unreadCount
         ]);
     }
 
     public function show($id)
     {
-        $message = Message::with(['sender', 'purchase.gameKey.game'])
+        $message = Message::with(['sender:id,username,avatar,role,created_at', 'purchase.gameKey.game'])
             ->findOrFail($id);
 
-        // Quitamos la verificación de receptor
-        if (!$message->is_read) {
+        $userId = auth()->id();
+
+        if ($message->sender_id !== $userId && $message->receiver_id !== $userId) {
+             return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        if ($message->receiver_id == $userId && !$message->is_read) {
             $message->markAsRead();
         }
 
@@ -37,6 +51,11 @@ class MessageController extends Controller
     public function markAsRead($id)
     {
         $message = Message::findOrFail($id);
+        
+        if ($message->receiver_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $message->markAsRead();
 
         return response()->json(['success' => true]);
@@ -44,7 +63,10 @@ class MessageController extends Controller
 
     public function unreadCount()
     {
-        // Sin autenticación, no hay forma de contar mensajes no leídos de un usuario
-        return response()->json(['count' => 0]);
+        $count = Message::where('receiver_id', auth()->id())
+            ->where('is_read', false)
+            ->count();
+            
+        return response()->json(['count' => $count]);
     }
 }
