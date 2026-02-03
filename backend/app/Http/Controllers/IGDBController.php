@@ -78,8 +78,7 @@ class IGDBController extends Controller
             $limit = $request->input('limit', 20);
 
             $accessToken = $this->getAccessToken();
-
-            $query = "fields name,summary,first_release_date,cover.url,platforms.name,platforms.abbreviation; where category = 0 & name ~ \"{$search}\"* & first_release_date != null & platforms != null & version_parent = null & (category != 3 | category = null) & themes != (42); limit {$limit};";
+            $query = "fields name,summary,first_release_date,cover.url,platforms.name,platforms.abbreviation; where game_type = 0 & name ~ \"{$search}\"* & first_release_date != null & platforms != null & version_parent = null & (game_type != 3 | game_type = null) & themes != (42); limit {$limit};";
 
             $response = Http::withOptions([
                 'verify' => $this->certPath,
